@@ -5,12 +5,12 @@ const fs = require('fs');
 let comm = null;
 let jadwal = null;
 
-fs.readFile('command.json', 'utf8', (err, data) => {
+fs.readFile('./asset/command.json', 'utf8', (err, data) => {
 	/* we'll not consider error handling for now */
 	if (err) {throw err;}
 	comm = JSON.parse(data);
 });
-fs.readFile('jadwal.json', 'utf8', (err, data) => {
+fs.readFile('./asset/jadwal.json', 'utf8', (err, data) => {
 	/* we'll not consider error handling for now */
 	if (err) {throw err;}
 	jadwal = JSON.parse(data);
@@ -35,9 +35,8 @@ client.on('messageCreate', async (msg) => {
 		myRole = msg.guild.roles.cache.find(role => role.name === 'a');
 		// await msg.channel.send(`Terima kasih anda sudah absen! ${Formatters.userMention(msg.author.id)}`);
 		await msg.channel.send(Formatters.roleMention(myRole.id));
-		// await msg.channel.send(myRole);
 		// console.log(msg.author.tag);
-		console.log(myRole);
+		// console.log(myRole);
 		break;
 	case command(comm['jadwal']):
 		embeded.setColor('#95CD41');
