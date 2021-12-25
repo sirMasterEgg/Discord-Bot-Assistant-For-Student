@@ -27,13 +27,23 @@ client.on('ready', () => {
 const embeded = new MessageEmbed();
 
 client.on('messageCreate', async (msg) => {
+	const rawinput = msg.content.toLowerCase();
+
+	let splittedinput = rawinput.split(' ');
+	splittedinput = rejoin(splittedinput);
+	const cm = splittedinput['cm'];
+	const theparam = splittedinput['param'];
+
+	messagefrom(msg.author.username, cm, theparam);
+
 	let temp = [];
 	let strnew = null;
 	let myRole = null;
-	switch (msg.content.toLowerCase()) {
+
+	switch (cm) {
 	case command(comm['absen']):
 		myRole = msg.guild.roles.cache.find(role => role.name === 'a');
-		// await msg.channel.send(`Terima kasih anda sudah absen! ${Formatters.userMention(msg.author.id)}`);
+		await msg.channel.send(`Terima kasih anda sudah absen! ${Formatters.userMention(msg.author.id)}`);
 		await msg.channel.send(Formatters.roleMention(myRole.id));
 		// console.log(msg.author.tag);
 		// console.log(myRole);
@@ -41,7 +51,7 @@ client.on('messageCreate', async (msg) => {
 	case command(comm['jadwal']):
 		embeded.setColor('#95CD41');
 		embeded.setTitle('Schedule Page');
-		embeded.setDescription('Here is your schedule from Monday to Sunday.');
+		embeded.setDescription('Here is schedule from Monday to Sunday.');
 		embeded.setTimestamp();
 		embeded.setAuthor(client.user.username, client.user.avatarURL(), null);
 		strnew = '';
@@ -68,13 +78,22 @@ client.on('messageCreate', async (msg) => {
 						strnew += '\n';
 					}
 				}
-				embeded.addField(titleCase(i), Formatters.blockQuote(strnew), true);
+				if (strnew == '') {
+					embeded.addField(titleCase(i), Formatters.blockQuote('Tidak ada jadwal!'), true);
+				}
+				else {
+					embeded.addField(titleCase(i), Formatters.blockQuote(strnew), true);
+				}
 				strnew = '';
 			}
 		}
-		await msg.channel.send({ embeds : [embeded] });
+		await msg.reply({ embeds : [embeded] });
+		embeded.setFields([]);
 		break;
 	case command(comm['help']):
+		if (theparam != null) {
+			break;
+		}
 		embeded.setColor('#0099ff');
 		embeded.setTitle('Help Page');
 		embeded.setDescription('Hey this is your personal asisstant and this is my help page.');
@@ -89,6 +108,9 @@ client.on('messageCreate', async (msg) => {
 		embeded.addFields(temp);
 		temp = [];
 		await msg.channel.send({ embeds: [embeded] });
+		break;
+	case command(comm['set reminder']):
+		await msg.channel.send('test');
 		break;
 	}
 });
@@ -110,3 +132,25 @@ const titleCase = (str) => {
 	return splitStr.join(' ');
 };
 
+const rejoin = (array_of_command) => {
+	try {
+		if (array_of_command.length == 1) {
+			return { cm: array_of_command[0], param: null };
+		}
+		else {
+			return { cm: array_of_command[0], param: array_of_command.slice(1).join(' ') };
+		}
+	}
+	catch (e) {
+		console.error(e);
+	}
+};
+
+const messagefrom = (senders, cm, theparam) => {
+	if (senders != 'MasterEgg\'s Bot') {
+		console.log({ sender: senders, command: cm, parameter: theparam }, '\n');
+	}
+	// else {
+	// 	console.log({ status: 'replied' });
+	// }
+};
