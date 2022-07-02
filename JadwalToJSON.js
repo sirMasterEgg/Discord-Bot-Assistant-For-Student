@@ -1,18 +1,19 @@
-const allRole = [];
-const getAllRole = (roles) => {
-	roles.fetch()
-		.then(role => role.each(user => {
+const getAllRole = async (roles) => {
+	const allRole = [];
+	try {
+		const r = await roles.fetch();
+		r.each(user => {
 			allRole.push({ id: user.id, name: user.name });
-			// console.log(user.id, user.name);
-		}))
-		.catch(console.error);
+		});
+		return allRole;
+	}
+	catch (e) {
+		console.error(e);
+	}
 };
 
 const convertToJSON = (csv_spliited_array) => {
-	const roleHeader = csv_spliited_array[0].splice(2);
-	const csvHeader = csv_spliited_array[1];
 	const csvData = csv_spliited_array.splice(2);
-	const listDay = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
 
 	const jadwal = {
 		senin : [],
