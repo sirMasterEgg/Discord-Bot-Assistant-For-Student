@@ -8,7 +8,8 @@ const csv = require('@fast-csv/parse');
 const axios = require('axios');
 
 const client = new Client({
-	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES],
+	intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_INTEGRATIONS, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+	partials: ['CHANNEL', 'MESSAGE'],
 });
 
 client.on('ready', () => {
@@ -59,10 +60,28 @@ client.on('messageCreate', async (msg) => {
 		break; */
 
 	case command(COMMAND.JADWAL):
+
+		// msg.guild.roles.cache.forEach(role => {
+		// 	console.log(role);
+		// });
+		// console.log(myRole);
+		// msg.guild.members.guild.roles.cache.forEach(r => {
+		// 	console.log(r);
+		// });
+		// const m = msg.
+		// es.cache.filter(roles => roles.id !== msg.guild.id).map(role => role.toString());
+		// console.log(myRole);
+		// console.log(msg.author);
+		// myRole = msg.guild.roles.cache.find(role => role.id === 'a');
+		// const role = msg.guild.roles.cache.find(role => role.name === "role name");
+
+
 		if (theParam == null) {
 			await msg.channel.send(`Command Error!\nShould be \`${command('jadwal [all]/[specified day]')}\`!`);
 			break;
 		}
+
+		msg.member.roles.cache.forEach(item => console.log(item.id !== msg.guild.id ? item.name : ''));
 
 		try {
 			arrJadwal = await readJadwal('jadwal');
@@ -143,15 +162,16 @@ client.on('messageCreate', async (msg) => {
 			await msg.channel.send(`Command Error!\nShould be \`${command('setreminder [nama];[tanggal];[jam];[keterangan]')}\`!`);
 			break;
 		}
-		newParam = theParam.replace(/[;[\]']/g, ' ');
-		newParam = newParam.replace(/\s\s+/g, ' ');
-		newParam = newParam.trim();
-		newParam = newParam.split(' ');
+
+		newParam = theParam.replace(/[;[\]']/g, ' ')
+			.replace(/\s\s+/g, ' ')
+			.trim()
+			.split(' ');
 
 		await msg.channel.send(newParam.join(' '));
 		/* client.on('interactionCreate', async interaction => {
 			const message = await interaction.reply('You can react with Unicode emojis!', { fetchReply: true });
-			message.react('😄');
+			await message.react('😄');
 		}); */
 
 		break;
@@ -178,7 +198,7 @@ client.on('messageCreate', async (msg) => {
 						})
 						.on('end', () => {
 							myRole = msg.guild.roles.cache.find(role => role.name === roleSearch);
-							downloadFile(url, `./res/${myRole.id}.csv`);
+							downloadFile(url, `./res/jadwal/${myRole.id}.csv`);
 							msg.channel.send('File jadwal berhasil ditambahkan!');
 						});
 					stream.write(res.data);
@@ -190,17 +210,41 @@ client.on('messageCreate', async (msg) => {
 		}
 
 		break;
+
 	case command('q'):
 		await msg.author.send('cok');
 		break;
 	case command('cok'):
 		// console.log(arrJadwal);
 		// console.log(msg.author);
+		// myRole = msg.guild.roles.cache.find(role => role.id === '923815115667697724');
+		// console.log(myRole);
+		// msg.guild.roles.cache.forEach(item => console.log(item.id + ' - ' + item.name));
 
+		/* const tes = await msg.reply((Math.floor(Math.random() * 100) + 1).toString());
+		await tes.react('🥲');
+		await msg.channel.send('<a:GIGACHAD:852778674688360478>');
+		await msg.channel.send('<a:PUTIN1:856846144935165973> '); */
 
+		// console.log(tes.reactions.cache.get('👍'));
+		// const s = await client.channels.cache.get('834367348977696821').messages.fetch('993908856826638357');
+		// console.log(s.reactions.cache);
+		// client.channels.cache.get('834367348977696821').messages.fetch('993858479796273172').then(m => {
+		// 	const totalReactionsCount = m.reactions.cache.map(reaction => reaction.count).reduce(function(tot, arr) {
+		// 		return tot + arr;
+		// 	}, 0);
+		// 	console.log(totalReactionsCount);
+		// });
+
+		// const emojis = msg.guild.emojis.cache
+		// 	.map((e) => `${e.name} : ${e}`)
+		// 	.join('\n');
+
+		// const emojis = msg.guild.emojis.cache
+		// 	.map(e => ({ [e.name]: e }));
+		// console.log(emojis);
 		break;
 	}
-
 });
 
 client.login(process.env.TOKEN);
@@ -208,7 +252,7 @@ client.login(process.env.TOKEN);
 const readJadwal = async (fileName) => {
 	return new Promise((resolve, reject) => {
 		const head = [];
-		const stream = fs.createReadStream(`res/${fileName}.csv`);
+		const stream = fs.createReadStream(`./res/jadwal/${fileName}.csv`);
 		const read = csv.parseStream(stream);
 
 		read.on('error', error => reject(error))
